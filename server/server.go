@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,83 +13,57 @@ type Answers struct {
 	Answer2 string `json:"answer_2"`
 }
 
-type CorrectAnswers struct {
-	Answer1 bool `json:"answer_1_correct"`
-	AnswerX bool `json:"answer_x_correct"`
-	Answer2 bool `json:"answer_2_correct"`
-}
-
 type Question struct {
 	Question string `json:"question"`
 	Answers Answers `json:"answers"`
-	CorrectAnswers CorrectAnswers `json:"correct_answers"`
+	CorrectAnswer string `json:"correct_answer"`
 }
 
-var questions = map[string]Question{
-	"1": {
+var questions = map[int]Question{
+	1: {
 		Question: "What is the capital of France?",
 		Answers: Answers{
 			Answer1: "Paris",
 			AnswerX: "London",
 			Answer2: "Berlin",
 		},
-		CorrectAnswers: CorrectAnswers{
-			Answer1: true,
-			AnswerX: false,
-			Answer2: false,
-		},
+		CorrectAnswer: "Paris",
 	},
-	"2": {
+	2: {
 		Question: "What is the capital of Germany?",
 		Answers: Answers{
 			Answer1: "Paris",
 			AnswerX: "London",
 			Answer2: "Berlin",
 		},
-		CorrectAnswers: CorrectAnswers{
-			Answer1: false,
-			AnswerX: false,
-			Answer2: true,
-		},
+		CorrectAnswer: "Berlin",
 	},
-	"3": {
+	3: {
 		Question: "What is the capital of England?",
 		Answers: Answers{
 			Answer1: "Paris",
 			AnswerX: "London",
 			Answer2: "Berlin",
 		},
-		CorrectAnswers: CorrectAnswers{
-			Answer1: false,
-			AnswerX: true,
-			Answer2: false,
-		},
+		CorrectAnswer: "London",
 	},
-	"4": {
+	4: {
 		Question: "What is the capital of Spain?",
 		Answers: Answers{
 			Answer1: "Paris",
 			AnswerX: "London",
 			Answer2: "Madrid",
 		},
-		CorrectAnswers: CorrectAnswers{
-			Answer1: false,
-			AnswerX: false,
-			Answer2: true,
-		},
+		CorrectAnswer: "Madrid",
 	},
-	"5": {
+	5: {
 		Question: "What is the capital of Italy?",
 		Answers: Answers{
 			Answer1: "Paris",
 			AnswerX: "Rome",
 			Answer2: "Berlin",
 		},
-		CorrectAnswers: CorrectAnswers{
-			Answer1: false,
-			AnswerX: true,
-			Answer2: false,
-		},
+		CorrectAnswer: "Rome",
 	},
 }
 
@@ -107,8 +82,13 @@ func getQuestions(c *gin.Context) {
 
 // getQuestion responds with the question for the specified ID.
 func getQuestion(c *gin.Context) {
-	id := c.Param("id")
-
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid ID"})
+		return
+	}
+	
 	if question, ok := questions[id]; ok {
 		c.IndentedJSON(http.StatusOK, question)
 	} else {

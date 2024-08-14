@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 
 	"github.com/spf13/cobra"
-	//"github.com/manifoldco/promptui"
+	"github.com/manifoldco/promptui"
 )
 
 type Answers struct {
@@ -19,16 +19,10 @@ type Answers struct {
 	Answer2 string `json:"answer_2"`
 }
 
-type CorrectAnswers struct {
-	Answer1 bool `json:"answer_1_correct"`
-	AnswerX bool `json:"answer_x_correct"`
-	Answer2 bool `json:"answer_2_correct"`
-}
-
 type Question struct {
 	Question string `json:"question"`
 	Answers Answers `json:"answers"`
-	CorrectAnswers CorrectAnswers `json:"correct_answers"`
+	CorrectAnswer string `json:"correct_answer"`
 }
 
 // playCmd represents the play command
@@ -39,12 +33,15 @@ var playCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		url := "http://localhost:8080/questions"
-		var questions map[string]Question
+		var questions map[int]Question
 		getJson(url, &questions)
-		// Testing if json is parsed correctly 
-		if value, exists := questions["1"]; exists {
-			fmt.Printf("Question: %s\n", value.Question)
+		
+		var answers [5]string
+		for i, q := range questions {
+			answers[i - 1] = answerQuestion(q)
 		}
+
+		fmt.Print(answers)
 	},
 }
 
@@ -60,6 +57,22 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// playCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func answerQuestion(q Question) string {
+	prompt := promptui.Select{
+		Label: q.Question,
+		Items: []string{q.Answers.Answer1, q.Answers.AnswerX, q.Answers.Answer2},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return ""
+	}
+
+	return result
 }
 
 // Reads JSON from a URL and decodes it into a target interface
