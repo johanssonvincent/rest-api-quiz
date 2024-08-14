@@ -6,22 +6,45 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
+	"encoding/json"
 
 	"github.com/spf13/cobra"
+	//"github.com/manifoldco/promptui"
 )
+
+type Answers struct {
+	Answer1 string `json:"answer_1"`
+	AnswerX string `json:"answer_x"`
+	Answer2 string `json:"answer_2"`
+}
+
+type CorrectAnswers struct {
+	Answer1 bool `json:"answer_1_correct"`
+	AnswerX bool `json:"answer_x_correct"`
+	Answer2 bool `json:"answer_2_correct"`
+}
+
+type Question struct {
+	Question string `json:"question"`
+	Answers Answers `json:"answers"`
+	CorrectAnswers CorrectAnswers `json:"correct_answers"`
+}
 
 // playCmd represents the play command
 var playCmd = &cobra.Command{
 	Use:   "play",
 	Short: "Starts the quiz",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `Starts the quiz`,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("play called")
+		url := "http://localhost:8080/questions"
+		var questions map[string]Question
+		getJson(url, &questions)
+		// Testing if json is parsed correctly 
+		if value, exists := questions["1"]; exists {
+			fmt.Printf("Question: %s\n", value.Question)
+		}
 	},
 }
 
@@ -37,4 +60,15 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// playCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+// Reads JSON from a URL and decodes it into a target interface
+func getJson(url string, target interface{}) error {
+	r, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return json.NewDecoder(r.Body).Decode(target)
 }

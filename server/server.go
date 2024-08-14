@@ -51,6 +51,45 @@ var questions = map[string]Question{
 			Answer2: true,
 		},
 	},
+	"3": {
+		Question: "What is the capital of England?",
+		Answers: Answers{
+			Answer1: "Paris",
+			AnswerX: "London",
+			Answer2: "Berlin",
+		},
+		CorrectAnswers: CorrectAnswers{
+			Answer1: false,
+			AnswerX: true,
+			Answer2: false,
+		},
+	},
+	"4": {
+		Question: "What is the capital of Spain?",
+		Answers: Answers{
+			Answer1: "Paris",
+			AnswerX: "London",
+			Answer2: "Madrid",
+		},
+		CorrectAnswers: CorrectAnswers{
+			Answer1: false,
+			AnswerX: false,
+			Answer2: true,
+		},
+	},
+	"5": {
+		Question: "What is the capital of Italy?",
+		Answers: Answers{
+			Answer1: "Paris",
+			AnswerX: "Rome",
+			Answer2: "Berlin",
+		},
+		CorrectAnswers: CorrectAnswers{
+			Answer1: false,
+			AnswerX: true,
+			Answer2: false,
+		},
+	},
 }
 
 func main() {
