@@ -59,10 +59,25 @@ var questions = []Question{
 func main() {
 	router := gin.Default()
 	router.GET("/questions", getQuestions)
-	
+	router.GET("/questions/:id", getQuestion)
+
 	router.Run("localhost:8080")
 }
 
+// getQuestions responds with the list of all questions as JSON.
 func getQuestions(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, questions)
+}
+
+// getQuestion responds with the question for the specified ID.
+func getQuestion(c *gin.Context) {
+	id := c.Param("id")
+
+	for _, question := range questions {
+		if question.ID == id {
+			c.IndentedJSON(http.StatusOK, question)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "question not found"})
 }
