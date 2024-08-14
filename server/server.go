@@ -13,55 +13,69 @@ type Answers struct {
 	Answer2 string `json:"answer_2"`
 }
 
-type Question struct {
+type QuestionAndAnswers struct {
 	Question string `json:"question"`
 	Answers Answers `json:"answers"`
+}
+
+type Question struct {
+	QuestionAndAnswers
 	CorrectAnswer string `json:"correct_answer"`
 }
 
 var questions = map[int]Question{
 	1: {
-		Question: "What is the capital of France?",
-		Answers: Answers{
-			Answer1: "Paris",
-			AnswerX: "London",
-			Answer2: "Berlin",
+		QuestionAndAnswers: QuestionAndAnswers{
+			Question: "What is the capital of France?",
+			Answers: Answers{
+				Answer1: "Paris",
+				AnswerX: "London",
+				Answer2: "Berlin",
+			},
 		},
 		CorrectAnswer: "Paris",
 	},
 	2: {
-		Question: "What is the capital of Germany?",
-		Answers: Answers{
-			Answer1: "Paris",
-			AnswerX: "London",
-			Answer2: "Berlin",
+		QuestionAndAnswers: QuestionAndAnswers{
+			Question: "What is the capital of Germany?",
+			Answers: Answers{
+				Answer1: "Paris",
+				AnswerX: "London",
+				Answer2: "Berlin",
+			},
 		},
 		CorrectAnswer: "Berlin",
 	},
 	3: {
-		Question: "What is the capital of England?",
-		Answers: Answers{
-			Answer1: "Paris",
-			AnswerX: "London",
-			Answer2: "Berlin",
+		QuestionAndAnswers: QuestionAndAnswers{
+			Question: "What is the capital of England?",
+			Answers: Answers{
+				Answer1: "Paris",
+				AnswerX: "London",
+				Answer2: "Berlin",
+			},
 		},
 		CorrectAnswer: "London",
 	},
 	4: {
-		Question: "What is the capital of Spain?",
-		Answers: Answers{
-			Answer1: "Paris",
-			AnswerX: "London",
-			Answer2: "Madrid",
+		QuestionAndAnswers: QuestionAndAnswers{
+			Question: "What is the capital of Spain?",
+			Answers: Answers{
+				Answer1: "Paris",
+				AnswerX: "London",
+				Answer2: "Madrid",
+			},
 		},
 		CorrectAnswer: "Madrid",
 	},
 	5: {
-		Question: "What is the capital of Italy?",
-		Answers: Answers{
-			Answer1: "Paris",
-			AnswerX: "Rome",
-			Answer2: "Berlin",
+		QuestionAndAnswers: QuestionAndAnswers{
+			Question: "What is the capital of Italy?",
+			Answers: Answers{
+				Answer1: "Paris",
+				AnswerX: "Rome",
+				Answer2: "Berlin",
+			},
 		},
 		CorrectAnswer: "Rome",
 	},
@@ -77,7 +91,13 @@ func main() {
 
 // getQuestions responds with the list of all questions as JSON.
 func getQuestions(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, questions)
+	var questionList []QuestionAndAnswers
+
+	for _, q := range questions {
+		questionList = append(questionList, q.QuestionAndAnswers)
+	}
+
+	c.IndentedJSON(http.StatusOK, questionList)
 }
 
 // getQuestion responds with the question for the specified ID.
@@ -88,7 +108,7 @@ func getQuestion(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid ID"})
 		return
 	}
-	
+
 	if question, ok := questions[id]; ok {
 		c.IndentedJSON(http.StatusOK, question)
 	} else {

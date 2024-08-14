@@ -19,10 +19,9 @@ type Answers struct {
 	Answer2 string `json:"answer_2"`
 }
 
-type Question struct {
+type QuestionAndAnswers struct {
 	Question string `json:"question"`
 	Answers Answers `json:"answers"`
-	CorrectAnswer string `json:"correct_answer"`
 }
 
 // playCmd represents the play command
@@ -33,12 +32,12 @@ var playCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		url := "http://localhost:8080/questions"
-		var questions map[int]Question
+		var questions []QuestionAndAnswers
 		getJson(url, &questions)
-		
+
 		var answers [5]string
 		for i, q := range questions {
-			answers[i - 1] = answerQuestion(q)
+			answers[i] = answerQuestion(q)
 		}
 
 		fmt.Print(answers)
@@ -59,7 +58,8 @@ func init() {
 	// playCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func answerQuestion(q Question) string {
+// Displays a question with three possible answers and returns the selected answer
+func answerQuestion(q QuestionAndAnswers) string {
 	prompt := promptui.Select{
 		Label: q.Question,
 		Items: []string{q.Answers.Answer1, q.Answers.AnswerX, q.Answers.Answer2},
