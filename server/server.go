@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +23,17 @@ type QuestionAndAnswers struct {
 type Question struct {
 	QuestionAndAnswers
 	CorrectAnswer string `json:"correct_answer"`
+}
+
+type UserResult struct {
+	Username string `json:"username"`
+	Answers []string `json:"answers"`
+}
+
+type Score struct {
+	Username string `json:"username"`
+	Score    int    `json:"score"`
+	Percentage float64 `json:"percentage"`
 }
 
 var questions = map[int]Question{
@@ -81,20 +94,24 @@ var questions = map[int]Question{
 	},
 }
 
+var scores []Score
+
 func main() {
 	router := gin.Default()
 	router.GET("/questions", getQuestions)
 	router.GET("/questions/:id", getQuestion)
+	router.POST("/scores", postScore)
+	router.GET("/scores", getScores)
 
 	router.Run("localhost:8080")
 }
 
 // getQuestions responds with the list of all questions as JSON.
 func getQuestions(c *gin.Context) {
-	var questionList []QuestionAndAnswers
+	var questionList [5]QuestionAndAnswers
 
-	for _, q := range questions {
-		questionList = append(questionList, q.QuestionAndAnswers)
+	for i, q := range questions {
+		questionList[i - 1] = q.QuestionAndAnswers
 	}
 
 	c.IndentedJSON(http.StatusOK, questionList)
@@ -114,4 +131,58 @@ func getQuestion(c *gin.Context) {
 	} else {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "question not found"})
 	}
+}
+
+// postScore adds a score to the list of scores.
+func postScore(c *gin.Context) {
+	var userResult UserResult
+	if err := c.BindJSON(&userResult); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid user result"})
+		return
+	}
+
+	score := insertScore(userResult)
+	
+	if score != nil {
+		c.IndentedJSON(http.StatusCreated, score)
+		return
+	} else {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid user result"})
+	}
+}
+
+// insertScore adds a score to the list of scores in the correct position.
+func insertScore(userResult UserResult) *Score {
+	var newScore Score
+	newScore.Username = userResult.Username
+	newScore.Score = checkAnswers(userResult.Answers)
+
+	index := sort.Search(len(scores), func(i int) bool {
+		return scores[i].Score < newScore.Score
+	})
+	
+	// Calculate the percentage of scores that are worse than the new score
+	numScores := len(scores)
+	worseCount := numScores - index
+	fmt.Println("Worse count: ", worseCount)
+	newScore.Percentage = float64(worseCount) / float64(numScores) * 100
+	
+	scores = append(scores[:index], append([]Score{newScore}, scores[index:]...)...)
+	return &newScore
+}
+
+func getScores(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, scores)
+}
+
+func checkAnswers(answers []string) int {
+	score := 0
+
+	for i, a := range answers {
+		if a == questions[i + 1].CorrectAnswer {
+			score++
+		}
+	}
+
+	return score
 }

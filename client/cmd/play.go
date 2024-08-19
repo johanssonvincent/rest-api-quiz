@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"bytes"
 
 	"github.com/spf13/cobra"
 	"github.com/manifoldco/promptui"
@@ -22,6 +23,17 @@ type Answers struct {
 type QuestionAndAnswers struct {
 	Question string `json:"question"`
 	Answers Answers `json:"answers"`
+}
+
+type userResult struct {
+	Username string `json:"username"`
+	Answers []string `json:"answers"`
+}
+
+type Score struct {
+	Username string `json:"username"`
+	Score    int    `json:"score"`
+	Percentage float64 `json:"percentage"`
 }
 
 // playCmd represents the play command
@@ -40,7 +52,37 @@ var playCmd = &cobra.Command{
 			answers[i] = answerQuestion(q)
 		}
 
-		fmt.Print(answers)
+		prompt := promptui.Prompt{
+			Label: "Enter your username to submit your answers",
+		}
+
+		username, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+
+		url = "http://localhost:8080/scores"
+		result := userResult{Username: username, Answers: answers[:]}
+
+		jsonData, err := json.Marshal(result)
+		if err != nil {
+			fmt.Printf("JSON marshalling failed %v\n", err)
+			return
+		}
+
+		resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+		if err != nil {
+			fmt.Printf("POST failed %v\n", err)
+			return
+		}
+
+		defer resp.Body.Close()
+
+		var score Score
+		json.NewDecoder(resp.Body).Decode(&score)
+
+		fmt.Printf("Your score is %d out of 5, that's better than (%.2f%%) of quizzers!\n", score.Score, score.Percentage)
 	},
 }
 
