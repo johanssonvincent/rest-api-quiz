@@ -1,6 +1,5 @@
 /*
-Copyright © 2024 Vincent Johansson vincent.johansson1@gmail.com
-
+Copyright © 2024 Vincent Johansson <vincent.johansson1@gmail.com>
 */
 package cmd
 
@@ -16,12 +15,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "quiz",
 	Short: "A simple quiz about European capitals",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long: `A simple quiz about European capitals.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -45,7 +39,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 

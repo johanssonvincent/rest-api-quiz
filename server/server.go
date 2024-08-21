@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
@@ -142,7 +141,7 @@ func postScore(c *gin.Context) {
 	}
 
 	score := insertScore(userResult)
-	
+
 	if score != nil {
 		c.IndentedJSON(http.StatusCreated, score)
 		return
@@ -163,9 +162,13 @@ func insertScore(userResult UserResult) *Score {
 	
 	// Calculate the percentage of scores that are worse than the new score
 	numScores := len(scores)
-	worseCount := numScores - index
-	fmt.Println("Worse count: ", worseCount)
-	newScore.Percentage = float64(worseCount) / float64(numScores) * 100
+	worseCount := numScores - index	
+	
+	if numScores == 0 {
+		newScore.Percentage = 101
+	} else {
+		newScore.Percentage = float64(worseCount) / float64(numScores) * 100
+	}
 	
 	scores = append(scores[:index], append([]Score{newScore}, scores[index:]...)...)
 	return &newScore

@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Vincent Johansson <vincent.johansson1@gmail.com>
 
 */
 package cmd
@@ -82,7 +82,11 @@ var playCmd = &cobra.Command{
 		var score Score
 		json.NewDecoder(resp.Body).Decode(&score)
 
-		fmt.Printf("Your score is %d out of 5, that's better than (%.2f%%) of quizzers!\n", score.Score, score.Percentage)
+		if score.Percentage == 101 {
+			fmt.Printf("Your score is %d out of 5, you were the first one to answer the quiz!\n", score.Score)
+		} else {
+			fmt.Printf("Your score is %d out of 5, that's better than %.2f%% of quizzers!\n", score.Score, score.Percentage)
+		}
 	},
 }
 
