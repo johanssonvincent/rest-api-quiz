@@ -52,19 +52,26 @@ var playCmd = &cobra.Command{
 			answers[i] = answerQuestion(q)
 		}
 
-		prompt := promptui.Prompt{
-			Label: "Enter your username to submit your answers",
-		}
-
-		username, err := prompt.Run()
-		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
-			return
-		}
-
 		url = "http://localhost:8080/scores"
-		result := userResult{Username: username, Answers: answers[:]}
+		var result userResult
 
+		// If the username flag is set, use that username
+		if username, _ := cmd.Flags().GetString("username"); username != "" {
+			result = userResult{Username: username, Answers: answers[:]}
+		} else {
+			prompt := promptui.Prompt{
+				Label: "Enter your username to submit your answers",
+			}
+	
+			username, err := prompt.Run()
+			if err != nil {
+				fmt.Printf("Prompt failed %v\n", err)
+				return
+			}
+	
+			result = userResult{Username: username, Answers: answers[:]}
+		}
+		
 		jsonData, err := json.Marshal(result)
 		if err != nil {
 			fmt.Printf("JSON marshalling failed %v\n", err)
@@ -81,9 +88,9 @@ var playCmd = &cobra.Command{
 
 		var score Score
 		json.NewDecoder(resp.Body).Decode(&score)
-
+		fmt.Printf("Good job, %s!\n", score.Username)
 		if score.Percentage == 101 {
-			fmt.Printf("Your score is %d out of 5, you were the first one to answer the quiz!\n", score.Score)
+			fmt.Printf("Your score is %d out of 5 and you were the first one to answer the quiz!\n", score.Score)
 		} else {
 			fmt.Printf("Your score is %d out of 5, that's better than %.2f%% of quizzers!\n", score.Score, score.Percentage)
 		}
@@ -93,6 +100,7 @@ var playCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(playCmd)
 
+	playCmd.Flags().StringP("username", "u", "", "Set your username to automatically submit your answers after finishing the quiz")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

@@ -164,6 +164,7 @@ func insertScore(userResult UserResult) *Score {
 	numScores := len(scores)
 	worseCount := numScores - index	
 	
+	// Set percentage to 101 if it's the first score, avoids NaN value
 	if numScores == 0 {
 		newScore.Percentage = 101
 	} else {
