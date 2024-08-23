@@ -20,7 +20,7 @@ type QuestionAndAnswers struct {
 }
 
 type Question struct {
-	QuestionAndAnswers
+	QuestionAndAnswers QuestionAndAnswers `json:"question_and_answers"`
 	CorrectAnswer string `json:"correct_answer"`
 }
 
@@ -97,8 +97,12 @@ var scores []Score
 
 func main() {
 	router := gin.Default()
+
 	router.GET("/questions", getQuestions)
 	router.GET("/questions/:id", getQuestion)
+	router.POST("/questions", addQuestion)
+	router.DELETE("/questions/:id", deleteQuestion)
+
 	router.POST("/scores", postScore)
 	router.GET("/scores", getScores)
 
@@ -107,13 +111,21 @@ func main() {
 
 // getQuestions responds with the list of all questions as JSON.
 func getQuestions(c *gin.Context) {
-	questionList := make([]QuestionAndAnswers, len(questions))
+	responseType := c.DefaultQuery("type", "default")
 
-	for i, q := range questions {
-		questionList[i - 1] = q.QuestionAndAnswers
+	switch responseType {
+	case "short":
+		questionList := make([]QuestionAndAnswers, len(questions))
+
+		for i, q := range questions {
+			questionList[i - 1] = q.QuestionAndAnswers
+		}
+
+		c.IndentedJSON(http.StatusOK, questionList)
+	default:
+		c.IndentedJSON(http.StatusOK, questions)
 	}
-
-	c.IndentedJSON(http.StatusOK, questionList)
+	
 }
 
 // getQuestion responds with the question for the specified ID.
@@ -127,6 +139,37 @@ func getQuestion(c *gin.Context) {
 
 	if question, ok := questions[id]; ok {
 		c.IndentedJSON(http.StatusOK, question)
+	} else {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "question not found"})
+	}
+}
+
+// Adds a question to the map containing questions.
+func addQuestion(c *gin.Context) {
+	var question Question
+	if err := c.BindJSON(&question); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid question"})
+		return
+	}
+
+	questions[len(questions) + 1] = question
+	c.IndentedJSON(http.StatusCreated, gin.H{
+		"id": len(questions),
+		"message": "Added successfully."})
+}
+
+// Deletes a question from the map containing questions.
+func deleteQuestion(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid ID"})
+		return
+	}
+
+	if _, ok := questions[id]; ok {
+		delete(questions, id)
+		c.IndentedJSON(http.StatusOK, gin.H{"message": "question deleted"})
 	} else {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "question not found"})
 	}

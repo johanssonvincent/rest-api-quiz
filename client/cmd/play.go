@@ -43,7 +43,7 @@ var playCmd = &cobra.Command{
 	Long: `Starts the quiz`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		url := "http://localhost:8080/questions"
+		url := "http://localhost:8080/questions?type=short"
 		var questions []QuestionAndAnswers
 		getJson(url, &questions)
 
@@ -90,9 +90,9 @@ var playCmd = &cobra.Command{
 		json.NewDecoder(resp.Body).Decode(&score)
 		fmt.Printf("Good job, %s!\n", score.Username)
 		if score.Percentage == 101 {
-			fmt.Printf("Your score is %d out of 5 and you were the first one to answer the quiz!\n", score.Score)
+			fmt.Printf("Your score is %d out of %d and you were the first one to answer the quiz!\n", score.Score, len(questions))
 		} else {
-			fmt.Printf("Your score is %d out of 5, that's better than %.2f%% of quizzers!\n", score.Score, score.Percentage)
+			fmt.Printf("Your score is %d out of %d, that's better than %.0f%% of quizzers!\n", score.Score, len(questions), score.Percentage)
 		}
 	},
 }
