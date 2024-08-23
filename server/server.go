@@ -107,7 +107,7 @@ func main() {
 
 // getQuestions responds with the list of all questions as JSON.
 func getQuestions(c *gin.Context) {
-	var questionList [5]QuestionAndAnswers
+	questionList := make([]QuestionAndAnswers, len(questions))
 
 	for i, q := range questions {
 		questionList[i - 1] = q.QuestionAndAnswers
@@ -150,6 +150,11 @@ func postScore(c *gin.Context) {
 	}
 }
 
+// getScores responds with the list of all scores as JSON.
+func getScores(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, scores)
+}
+
 // insertScore adds a score to the list of scores in the correct position.
 func insertScore(userResult UserResult) *Score {
 	var newScore Score
@@ -173,10 +178,6 @@ func insertScore(userResult UserResult) *Score {
 	
 	scores = append(scores[:index], append([]Score{newScore}, scores[index:]...)...)
 	return &newScore
-}
-
-func getScores(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, scores)
 }
 
 func checkAnswers(answers []string) int {

@@ -47,7 +47,7 @@ var playCmd = &cobra.Command{
 		var questions []QuestionAndAnswers
 		getJson(url, &questions)
 
-		var answers [5]string
+		answers := make([]string, len(questions))
 		for i, q := range questions {
 			answers[i] = answerQuestion(q)
 		}
