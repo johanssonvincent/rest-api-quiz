@@ -26,7 +26,7 @@ type Question struct {
 
 type UserResult struct {
 	Username string `json:"username"`
-	Answers []string `json:"answers"`
+	Answers map[int]string `json:"answers"`
 }
 
 type Score struct {
@@ -115,17 +115,16 @@ func getQuestions(c *gin.Context) {
 
 	switch responseType {
 	case "short":
-		questionList := make([]QuestionAndAnswers, len(questions))
+		questionList := map[int]QuestionAndAnswers{}
 
 		for i, q := range questions {
-			questionList[i - 1] = q.QuestionAndAnswers
+			questionList[i] = q.QuestionAndAnswers
 		}
 
 		c.IndentedJSON(http.StatusOK, questionList)
 	default:
 		c.IndentedJSON(http.StatusOK, questions)
 	}
-	
 }
 
 // getQuestion responds with the question for the specified ID.
@@ -155,7 +154,7 @@ func addQuestion(c *gin.Context) {
 	questions[len(questions) + 1] = question
 	c.IndentedJSON(http.StatusCreated, gin.H{
 		"id": len(questions),
-		"message": "Added successfully."})
+		"message": "added successfully"})
 }
 
 // Deletes a question from the map containing questions.
@@ -223,11 +222,12 @@ func insertScore(userResult UserResult) *Score {
 	return &newScore
 }
 
-func checkAnswers(answers []string) int {
+// Verifies users answers and return their score
+func checkAnswers(answers map[int]string) int {
 	score := 0
 
 	for i, a := range answers {
-		if a == questions[i + 1].CorrectAnswer {
+		if a == questions[i].CorrectAnswer {
 			score++
 		}
 	}

@@ -27,7 +27,7 @@ type QuestionAndAnswers struct {
 
 type userResult struct {
 	Username string `json:"username"`
-	Answers []string `json:"answers"`
+	Answers map[int]string `json:"answers"`
 }
 
 type Score struct {
@@ -44,10 +44,10 @@ var playCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		url := "http://localhost:8080/questions?type=short"
-		var questions []QuestionAndAnswers
+		questions :=  map[int]QuestionAndAnswers{}
 		getJson(url, &questions)
 
-		answers := make([]string, len(questions))
+		answers := map[int]string{}
 		for i, q := range questions {
 			answers[i] = answerQuestion(q)
 		}
@@ -57,7 +57,7 @@ var playCmd = &cobra.Command{
 
 		// If the username flag is set, use that username
 		if username, _ := cmd.Flags().GetString("username"); username != "" {
-			result = userResult{Username: username, Answers: answers[:]}
+			result = userResult{Username: username, Answers: answers}
 		} else {
 			prompt := promptui.Prompt{
 				Label: "Enter your username to submit your answers",
@@ -69,7 +69,7 @@ var playCmd = &cobra.Command{
 				return
 			}
 	
-			result = userResult{Username: username, Answers: answers[:]}
+			result = userResult{Username: username, Answers: answers}
 		}
 		
 		jsonData, err := json.Marshal(result)
