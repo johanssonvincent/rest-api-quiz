@@ -31,6 +31,8 @@ var newCmd = &cobra.Command{
 		q.QuestionAndAnswers.Answers.AnswerX, _ = cmd.Flags().GetString("answerX")
 		q.QuestionAndAnswers.Answers.Answer2, _ = cmd.Flags().GetString("answer2")
 		
+		// Chose to have user input 1, X, or 2 to make it simpler
+		// Match the input to the correct answer
 		correct, _ := cmd.Flags().GetString("correct")
 		if correct == "1" {
 			q.CorrectAnswer = q.QuestionAndAnswers.Answers.Answer1
@@ -87,6 +89,8 @@ func init() {
 	newCmd.MarkFlagRequired("answerX")
 	newCmd.MarkFlagRequired("answer2")
 	newCmd.MarkFlagRequired("correct")
+
+	newCmd.SetUsageTemplate(help)
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -97,3 +101,16 @@ func init() {
 	// is called directly, e.g.:
 	// newCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
+
+// Template for help message
+var help = `Usage:		quiz new [flags]
+Example:	quiz new -q "Question?" -1 "Yes" -X "Maybe" -2 "No" -c 1
+	
+Flags:
+	-q, --question string		The question
+	-1, --answer1 string		Answer alternative 1
+	-X, --answerX string		Answer alternative X
+	-2, --answer2 string		Answer alternative 2
+	-c, --correct string		The correct answer for the question (1, X, or 2)
+	-h, --help			help for new
+`
