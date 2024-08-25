@@ -151,10 +151,25 @@ func addQuestion(c *gin.Context) {
 		return
 	}
 
-	questions[len(questions) + 1] = question
-	c.IndentedJSON(http.StatusCreated, gin.H{
-		"id": len(questions),
+	if _, ok := questions[len(questions) * 2 + 1]; !ok {
+		id := len(questions) * 2 + 1
+		questions[id] = question
+		c.IndentedJSON(http.StatusCreated, gin.H{
+		"id": id,
 		"message": "added successfully"})
+		return
+	}
+
+	// Find lowest available ID and add question
+	for i := 1; i < len(questions); i++ {
+		if _, ok := questions[i]; !ok {
+			questions[i] = question
+			c.IndentedJSON(http.StatusCreated, gin.H{
+				"id": i,
+				"message": "added successfully"})
+			return
+		}
+	}
 }
 
 // Deletes a question from the map containing questions.
