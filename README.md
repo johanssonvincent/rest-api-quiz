@@ -15,17 +15,19 @@ The client CLI can be built by running go build, in the client directory.
 go build .
 ```
 
-### Commands
+## Commands
 
-#### play
-Starts a round of the quiz. 
+### play
+Starts a new round of the quiz. 
 
 Flags:
 	-u, --username string		Set your username to automatically submit your answers after finishing the quiz
 
-Example:	quiz play -u name
+```bash
+quiz play -u name
+```
 
-#### new
+### new
 Adds a new question to the quiz, requires all of the flags to be filled out. 
 
 Flags:
@@ -35,10 +37,14 @@ Flags:
 	-2, --answer2 string		Answer alternative 2
 	-c, --correct string		The correct answer for the question (1, X, or 2)
 
-Example:	quiz new -q "Question?" -1 "Yes" -X "Maybe" -2 "No" -c 1
+```bash
+quiz new -q "Question?" -1 "Yes" -X "Maybe" -2 "No" -c 1
+```
 
-#### del
+### del
 Deletes a quiz question by ID.
 
-Example:	quiz del 3
+```bash
+quiz del 3
+```
 This will delete question with ID 3.
