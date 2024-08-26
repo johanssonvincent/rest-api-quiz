@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/spf13/cobra"
@@ -26,25 +25,21 @@ var delCmd = &cobra.Command{
 			return
 		}
 		
+		// Send the delete request
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
 			fmt.Printf("Error sending delete request: %v\n", err)
 			return
 		}
+		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
 			fmt.Printf("Failed to delete question with ID %s, please double check the ID\n", args[0])
 			return
 		}
 		
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Printf("Error reading response body: %v\n", err)
-			return
-		}
-
-		fmt.Printf("Response body: %v\n", string(body))
+		fmt.Printf("Question with ID %s deleted successfully\n", args[0])
 	},
 }
 

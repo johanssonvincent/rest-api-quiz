@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Vincent Johansson <vincent.johansson1@gmail.com>
 */
 package cmd
 
@@ -31,7 +31,7 @@ var newCmd = &cobra.Command{
 		q.QuestionAndAnswers.Answers.AnswerX, _ = cmd.Flags().GetString("answerX")
 		q.QuestionAndAnswers.Answers.Answer2, _ = cmd.Flags().GetString("answer2")
 		
-		// Chose to have user input 1, X, or 2 to make it simpler
+		// I chose to have user input 1, X, or 2 to make it simpler
 		// Match the input to the correct answer
 		correct, _ := cmd.Flags().GetString("correct")
 		if correct == "1" {

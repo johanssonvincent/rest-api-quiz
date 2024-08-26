@@ -45,7 +45,9 @@ var playCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		url := "http://localhost:8080/questions?type=short"
 		questions :=  map[int]QuestionAndAnswers{}
-		getJson(url, &questions)
+		if err := getJson(url, &questions); err != nil {
+			fmt.Printf("Failed to fetch questions: %v\n", err)
+		}
 
 		answers := map[int]string{}
 		for i, q := range questions {
@@ -101,15 +103,6 @@ func init() {
 	rootCmd.AddCommand(playCmd)
 
 	playCmd.Flags().StringP("username", "u", "", "Set your username to automatically submit your answers after finishing the quiz")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// playCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// playCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // Displays a question with three possible answers and returns the selected answer
