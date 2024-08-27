@@ -24,7 +24,14 @@ Flags:
 * -u, --username string		Set your username to automatically submit your answers after finishing the quiz
 
 ```bash
-quiz play -u name
+quiz play -u Username
+```
+
+### toplist
+Displays the current top quizzers
+
+```bash
+quiz toplist
 ```
 
 ### new
